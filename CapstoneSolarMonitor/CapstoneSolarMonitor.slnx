@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SolarMonitor.Api/SolarMonitor.Api.csproj" />
+  <Project Path="SolarMonitor.Application/SolarMonitor.Application.csproj" />
+  <Project Path="SolarMonitor.Domain/SolarMonitor.Domain.csproj" />
+  <Project Path="SolarMonitor.Infrastructure/SolarMonitor.Infrastructure.csproj" />
+</Solution>
