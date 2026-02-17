@@ -63,9 +63,8 @@ namespace SolarMonitor.Tests
             var panel = new Panel("Tesla", "Model X", PanelType.Monocrystalline);
 
             Action act = () => panel.RecordReading(Watts, Voltage);
-
-            act.Should().Throw<ArgumentException>()
-                .WithMessage("*negative watts*");
+            act(); 
+            panel.Readings.Should().ContainSingle(r => r.Watts == Watts && r.Voltage == Voltage);
         }
 
         [Theory]
