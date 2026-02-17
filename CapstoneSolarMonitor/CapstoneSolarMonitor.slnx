@@ -3,4 +3,5 @@
   <Project Path="SolarMonitor.Application/SolarMonitor.Application.csproj" />
   <Project Path="SolarMonitor.Domain/SolarMonitor.Domain.csproj" />
   <Project Path="SolarMonitor.Infrastructure/SolarMonitor.Infrastructure.csproj" />
+  <Project Path="SolarMonitor.Tests/SolarMonitor.Tests.csproj" Id="0de89a15-d0d2-45ce-9b69-b2a8d897b04c" />
 </Solution>
