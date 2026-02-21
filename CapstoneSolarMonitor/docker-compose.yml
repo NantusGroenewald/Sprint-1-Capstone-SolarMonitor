@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # 1. Our SolarMonitor Web API
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5005:8080" # Map PC port 5005 to Container port 8080
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - db # Tell Docker to start the database before starting the API
+
+  # 2. The SQL Server Database
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433" # Standard SQL Server port
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=SolarMonitor_StrongPass123!
