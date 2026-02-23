@@ -1,12 +1,10 @@
 ﻿using SolarMonitor.Domain.Enums;
-using SolarMonitor.Domain.ValueObjects;
 
 namespace SolarMonitor.Domain.Entities;
 
 public class Panel
 {
     public Guid Id { get; private set; }
-
     public string Brand { get; private set; }
     public string Model { get; private set; }
     public PanelType Type { get; private set; }
@@ -17,12 +15,6 @@ public class Panel
 
     public Panel(string brand, string model, PanelType type)
     {
-        if (string.IsNullOrWhiteSpace(brand))
-            throw new ArgumentException("Brand cannot be empty.");
-
-        if (string.IsNullOrWhiteSpace(model))
-            throw new ArgumentException("Model cannot be empty.");
-
         Id = Guid.NewGuid();
         Brand = brand;
         Model = model;
@@ -32,13 +24,11 @@ public class Panel
 
     public void RecordReading(double watts, double voltage)
     {
-        if (watts < 0)
-            throw new ArgumentException("Solar panels cannot generate negative watts (unless they are broken black holes).");
+        if (watts < 0) throw new ArgumentException("Negative watts not allowed.");
+        if (voltage < 0) throw new ArgumentException("Negative voltage not allowed.");
 
-        if (voltage < 0)
-            throw new ArgumentException("Voltage cannot be negative.");
-
-        var reading = new Reading(watts, voltage, DateTime.UtcNow);
+        // Pass this panel's Id to the reading!
+        var reading = new Reading(this.Id, watts, voltage);
         _readings.Add(reading);
     }
 }

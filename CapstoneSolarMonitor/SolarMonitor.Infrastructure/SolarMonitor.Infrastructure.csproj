@@ -7,7 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SolarMonitor.Application\SolarMonitor.Application.csproj" />
+    <ProjectReference Include="..\SolarMonitor.Domain\SolarMonitor.Domain.csproj" />
   </ItemGroup>
 
 </Project>
