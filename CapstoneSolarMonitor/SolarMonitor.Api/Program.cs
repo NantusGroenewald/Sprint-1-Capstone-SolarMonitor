@@ -1,8 +1,13 @@
 using SolarMonitor.Application.Repositories;
 using SolarMonitor.Application.UseCases;
 using SolarMonitor.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using SolarMonitor.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
 builder.Services.AddControllers();
