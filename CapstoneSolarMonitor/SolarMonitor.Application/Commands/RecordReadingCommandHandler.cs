@@ -1,8 +1,9 @@
-﻿using SolarMonitor.Application.Repositories;
+﻿using MediatR;
+using SolarMonitor.Application.Repositories;
 
-namespace SolarMonitor.Application.UseCases;
+namespace SolarMonitor.Application.Commands;
 
-public class RecordReadingCommandHandler
+public class RecordReadingCommandHandler : IRequestHandler<RecordReadingCommand, bool>
 {
     private readonly IPanelRepository _repository;
 
@@ -11,7 +12,7 @@ public class RecordReadingCommandHandler
         _repository = repository;
     }
 
-    public async Task<bool> HandleAsync(RecordReadingCommand command, CancellationToken ct)
+    public async Task<bool> Handle(RecordReadingCommand command, CancellationToken ct)
     {
         var panel = await _repository.GetByIdAsync(command.PanelId, ct);
         if (panel is null)
@@ -20,7 +21,7 @@ public class RecordReadingCommandHandler
         }
 
         panel.RecordReading(command.Watts, command.Voltage);
-        await _repository.SaveAsync(panel, ct);
+        await _repository.UpdateAsync(panel, ct);
 
         return true;
     }

@@ -7,7 +7,9 @@ namespace SolarMonitor.Application.Repositories
 {
     public interface IPanelRepository
     {
-        Task<Panel> GetByIdAsync(Guid id, CancellationToken cancellationToken);
-        Task SaveAsync(Panel panel, CancellationToken cancellationToken); 
+        Task<Panel?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+        Task<IEnumerable<Panel>> GetPanelsAsync(CancellationToken cancellationToken);
+        Task AddAsync (Panel panel, CancellationToken cancellationToken);
+        Task UpdateAsync (Panel panel, CancellationToken cancellationToken);
     }
 }

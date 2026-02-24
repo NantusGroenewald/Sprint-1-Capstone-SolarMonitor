@@ -21,9 +21,23 @@ public class ApplicationDbContext : DbContext
             entity.Property(p => p.Model).IsRequired().HasMaxLength(100);
             entity.Property(p => p.Type).HasConversion<string>();
 
+            entity.Navigation(p => p.Readings)
+                  .HasField("_readings")
+                  .UsePropertyAccessMode(PropertyAccessMode.Field);
+
             entity.HasMany(p => p.Readings)
                   .WithOne()
-                  .HasForeignKey(r => r.PanelId);
+                  .HasForeignKey(r => r.PanelId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Reading>(entity =>
+        {
+            entity.HasKey(r => r.Id);
+            entity.Property(r => r.PanelId).IsRequired();
+            entity.Property(r => r.Watts).IsRequired();
+            entity.Property(r => r.Voltage).IsRequired();
+            entity.Property(r => r.Timestamp).IsRequired();
         });
     }
 }

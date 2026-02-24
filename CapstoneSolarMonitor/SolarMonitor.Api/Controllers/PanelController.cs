@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SolarMonitor.Application.UseCases;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using SolarMonitor.Application.Commands;
 
 namespace SolarMonitor.Api.Controllers;
 
@@ -7,28 +8,37 @@ namespace SolarMonitor.Api.Controllers;
 [Route("api/[controller]")]
 public class PanelsController : ControllerBase
 {
-    private readonly RecordReadingCommandHandler _handler;
+    private readonly ISender _mediator;
 
-    public PanelsController(RecordReadingCommandHandler handler)
+    public PanelsController(ISender mediator)
     {
-        _handler = handler;
+        _mediator = mediator;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreatePanel([FromBody] CreatePanelCommand command)
+    {
+        var panelId = await _mediator.Send(command);
+
+        return Ok(new { Id = panelId, Message = "Panel successfully registered via MediatR!" });
     }
 
     [HttpPost("{id}/readings")]
-    public async Task<IActionResult> RecordReading(Guid id, [FromBody] ReadingRequest request, CancellationToken ct)
+    public async Task<IActionResult> RecordReading(Guid id, [FromBody] RecordReadingCommand command, CancellationToken cancellationToken)
     {
-        var command = new RecordReadingCommand(id, request.Watts, request.Voltage);
-
+        command.PanelId = id; 
         try
         {
-            await _handler.HandleAsync(command, ct);
-            return Ok(new { Message = "Reading recorded successfully!" });
+            await _mediator.Send(command, cancellationToken);
+            return Ok(new {Message = "Reading successfully recorded via MediatR!" });
         }
         catch (Exception ex)
         {
             return BadRequest(new { Error = ex.Message });
         }
+
+
+
+
     }
 }
-
-public record ReadingRequest(double Watts, double Voltage);
