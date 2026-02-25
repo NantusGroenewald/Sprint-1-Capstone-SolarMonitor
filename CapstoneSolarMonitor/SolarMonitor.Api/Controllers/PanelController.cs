@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SolarMonitor.Application.Commands;
-
+using SolarMonitor.Application.Queries;
 namespace SolarMonitor.Api.Controllers;
 
 [ApiController]
@@ -36,9 +36,13 @@ public class PanelsController : ControllerBase
         {
             return BadRequest(new { Error = ex.Message });
         }
+    }
 
-
-
-
+    [HttpGet]
+    public async Task<IActionResult> GetAllPanels(CancellationToken cancellationToken)
+    {
+        var query = new GetAllPanelsQuery();
+        var panels = await _mediator.Send(query, cancellationToken);
+        return Ok(panels);
     }
 }
