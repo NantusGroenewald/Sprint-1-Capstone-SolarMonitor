@@ -15,6 +15,12 @@ public class Panel
 
     public Panel(string brand, string model, PanelType type)
     {
+        if (string.IsNullOrWhiteSpace(brand))
+            throw new ArgumentException("Brand cannot be empty.");
+
+        if (string.IsNullOrWhiteSpace(model))
+            throw new ArgumentException("Model cannot be empty.");
+
         Id = Guid.NewGuid();
         Brand = brand;
         Model = model;
