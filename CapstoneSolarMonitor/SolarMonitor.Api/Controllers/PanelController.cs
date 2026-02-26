@@ -45,4 +45,15 @@ public class PanelsController : ControllerBase
         var panels = await _mediator.Send(query, cancellationToken);
         return Ok(panels);
     }
+
+
+    [HttpGet("{id}/readings")]
+    public async Task<IActionResult> GetPanelReadings(Guid id)
+    {
+        var query = new GetPanelReadingsQuery(id);
+
+        var readings = await _mediator.Send(query);
+
+        return Ok(readings);
+    }
 }
