@@ -40,7 +40,15 @@ namespace SolarMonitor.Infrastructure.Repositories
 
         public async Task UpdateAsync(Panel panel, CancellationToken cancellationToken)
         {
-            _context.ChangeTracker.DetectChanges();
+            var readingEntries = _context.ChangeTracker.Entries<Reading>().ToList();
+            foreach (var entry in readingEntries)
+            {
+                if (entry.State == EntityState.Modified)
+                {
+                    entry.State = EntityState.Added;
+                }
+            }
+
             await _context.SaveChangesAsync(cancellationToken);
         }
     }
