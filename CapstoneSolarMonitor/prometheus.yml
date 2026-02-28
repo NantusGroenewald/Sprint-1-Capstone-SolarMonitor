@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 5s 
+
+scrape_configs:
+  - job_name: 'solar-api'
+    scheme: https                  # Force Prometheus to use HTTPS
+    tls_config:
+      insecure_skip_verify: true   # Bypass the local .NET dev cert warning
+    static_configs:
+      # host.docker.internal tells the container to route out to your PC's localhost!
+      - targets: ['host.docker.internal:7176']
