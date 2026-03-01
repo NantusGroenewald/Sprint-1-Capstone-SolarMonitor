@@ -8,6 +8,7 @@ using SolarMonitor.Application.Commands;
 using SolarMonitor.Application.Repositories;
 using SolarMonitor.Infrastructure.Data;
 using SolarMonitor.Infrastructure.Repositories;
+using SolarMonitor.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IPanelRepository, PanelRepository>();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreatePanelCommandHandler).Assembly));
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource => resource
@@ -54,6 +58,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.MapControllers();
 app.MapPrometheusScrapingEndpoint();
