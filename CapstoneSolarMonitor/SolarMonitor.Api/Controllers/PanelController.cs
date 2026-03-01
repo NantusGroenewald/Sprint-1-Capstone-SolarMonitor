@@ -26,16 +26,10 @@ public class PanelsController : ControllerBase
     [HttpPost("{id}/readings")]
     public async Task<IActionResult> RecordReading(Guid id, [FromBody] RecordReadingCommand command, CancellationToken cancellationToken)
     {
-        command.PanelId = id; 
-        try
-        {
-            await _mediator.Send(command, cancellationToken);
-            return Ok(new {Message = "Reading successfully recorded via MediatR!" });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(new { Error = ex.Message });
-        }
+        command.PanelId = id;
+
+        await _mediator.Send(command, cancellationToken);
+        return Ok(new { Message = "Reading successfully recorded via MediatR!" });
     }
 
     [HttpGet]
