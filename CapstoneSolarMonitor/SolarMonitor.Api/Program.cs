@@ -9,6 +9,9 @@ using SolarMonitor.Application.Repositories;
 using SolarMonitor.Infrastructure.Data;
 using SolarMonitor.Infrastructure.Repositories;
 using SolarMonitor.Api.Middleware;
+using FluentValidation;
+using SolarMonitor.Application.Behaviors;
+using SolarMonitor.Application.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +28,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IPanelRepository, PanelRepository>();
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreatePanelCommandHandler).Assembly));
+builder.Services.AddValidatorsFromAssembly(typeof(CreatePanelCommandValidator).Assembly);
+builder.Services.AddMediatR(cfg => 
+{ 
+    cfg.RegisterServicesFromAssembly(typeof(CreatePanelCommandHandler).Assembly); 
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

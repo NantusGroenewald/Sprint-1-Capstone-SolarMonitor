@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using FluentValidation; 
 
 namespace SolarMonitor.Api.Middleware
 {
@@ -31,6 +32,15 @@ namespace SolarMonitor.Api.Middleware
                 problemDetails.Status = StatusCodes.Status400BadRequest;
                 problemDetails.Title = "Validation Error";
                 problemDetails.Detail = exception.Message;
+            }
+
+            if (exception is ValidationException validationException)
+            {
+                problemDetails.Status = StatusCodes.Status400BadRequest;
+                problemDetails.Title = "Validation Failed";
+
+                var errors = validationException.Errors.Select(e => e.ErrorMessage);
+                problemDetails.Detail = string.Join("; ", errors); 
             }
 
             httpContext.Response.StatusCode = problemDetails.Status.Value;
