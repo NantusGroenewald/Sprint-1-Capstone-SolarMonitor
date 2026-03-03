@@ -11,5 +11,6 @@ namespace SolarMonitor.Application.Repositories
         Task<IEnumerable<Panel>> GetPanelsAsync(CancellationToken cancellationToken);
         Task AddAsync (Panel panel, CancellationToken cancellationToken);
         Task UpdateAsync (Panel panel, CancellationToken cancellationToken);
+        Task<(IEnumerable<Reading> Readings, int TotalCount)> GetPagedReadingsAsync(Guid panelId, int pageNumber, int pageSize, CancellationToken cancellationToken);
     }
 }

@@ -42,12 +42,11 @@ public class PanelsController : ControllerBase
 
 
     [HttpGet("{id}/readings")]
-    public async Task<IActionResult> GetPanelReadings(Guid id)
+    public async Task<IActionResult> GetPanelReadings(Guid id, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        var query = new GetPanelReadingsQuery(id);
+        var query = new GetPanelReadingsQuery(id, pageNumber, pageSize);
+        var result = await _mediator.Send(query);
 
-        var readings = await _mediator.Send(query);
-
-        return Ok(readings);
+        return Ok(result);
     }
 }

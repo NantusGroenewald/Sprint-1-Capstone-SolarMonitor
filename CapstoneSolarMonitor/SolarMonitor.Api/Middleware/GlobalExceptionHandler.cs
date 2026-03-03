@@ -18,7 +18,7 @@ namespace SolarMonitor.Api.Middleware
             Exception exception,
             CancellationToken cancellationToken)
         {
-            _logger.LogError(exception, "Anexception occured: {Message}", exception.Message);
+            _logger.LogError(exception, "An exception occured: {Message}", exception.Message);
 
             var problemDetails = new ProblemDetails
             {

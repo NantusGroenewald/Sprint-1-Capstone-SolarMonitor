@@ -51,5 +51,20 @@ namespace SolarMonitor.Infrastructure.Repositories
 
             await _context.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<(IEnumerable<Reading> Readings, int TotalCount)> GetPagedReadingsAsync(Guid panelId, int pageNumber, int pageSize, CancellationToken cancellationToken)
+        {
+            var query = _context.Set<Reading>().Where(r => r.PanelId == panelId);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            var pagedReadings = await query
+                .OrderByDescending(r => r.Timestamp)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (pagedReadings, totalCount);
+        }
     }
 }
