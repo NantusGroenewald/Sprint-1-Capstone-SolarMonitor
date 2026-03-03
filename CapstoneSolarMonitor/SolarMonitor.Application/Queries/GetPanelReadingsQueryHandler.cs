@@ -4,7 +4,7 @@ using SolarMonitor.Application.Repositories;
 
 namespace SolarMonitor.Application.Queries;
 
-public class GetPanelReadingsQueryHandler : IRequestHandler<GetPanelReadingsQuery, IEnumerable<ReadingResponse>>
+public class GetPanelReadingsQueryHandler : IRequestHandler<GetPanelReadingsQuery, PagedResult<ReadingResponse>>
 {
     private readonly IPanelRepository _panelRepository;
 
@@ -13,24 +13,24 @@ public class GetPanelReadingsQueryHandler : IRequestHandler<GetPanelReadingsQuer
         _panelRepository = panelRepository;
     }
 
-    public async Task<IEnumerable<ReadingResponse>> Handle(GetPanelReadingsQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<ReadingResponse>> Handle(GetPanelReadingsQuery request, CancellationToken cancellationToken)
     {
-        var panel = await _panelRepository.GetByIdAsync(request.PanelId, cancellationToken);
 
-        if (panel == null)
+        var (readings, totalCount) = await _panelRepository.GetPagedReadingsAsync(request.PanelId, request.PageNumber, request.PageSize, cancellationToken);
+
+        var items = readings.Select(r => new ReadingResponse
         {
-            return Enumerable.Empty<ReadingResponse>();
-        }
+            Watts = r.Watts,
+            Voltage = r.Voltage,
+            Timestamp = r.Timestamp
+        }).ToList();
 
-        var response = panel.Readings
-            .OrderByDescending(r => r.Timestamp)
-            .Select(r => new ReadingResponse
-            {
-                Watts = r.Watts,
-                Voltage = r.Voltage,
-                Timestamp = r.Timestamp
-            });
-
-        return response;
+        return new PagedResult<ReadingResponse>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            PageNumber = request.PageNumber,
+            PageSize = request.PageSize
+        };
     }
 }
