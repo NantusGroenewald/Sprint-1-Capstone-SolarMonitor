@@ -12,6 +12,7 @@ using SolarMonitor.Api.Middleware;
 using FluentValidation;
 using SolarMonitor.Application.Behaviors;
 using SolarMonitor.Application.Validators;
+using SolarMonitor.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IPanelRepository, PanelRepository>();
+builder.Services.AddHostedService<InverterSimulatorService>();
 builder.Services.AddValidatorsFromAssembly(typeof(CreatePanelCommandValidator).Assembly);
 builder.Services.AddMediatR(cfg => 
 { 
