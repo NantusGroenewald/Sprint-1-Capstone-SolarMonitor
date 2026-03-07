@@ -1,18 +1,20 @@
+using FluentValidation;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using SolarMonitor.Api.Middleware;
+using SolarMonitor.Api.Services;
+using SolarMonitor.Application.Behaviors;
 using SolarMonitor.Application.Commands;
 using SolarMonitor.Application.Repositories;
+using SolarMonitor.Application.Validators;
 using SolarMonitor.Infrastructure.Data;
 using SolarMonitor.Infrastructure.Repositories;
-using SolarMonitor.Api.Middleware;
-using FluentValidation;
-using SolarMonitor.Application.Behaviors;
-using SolarMonitor.Application.Validators;
-using SolarMonitor.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +43,16 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = "localhost:6379";
     options.InstanceName = "SolarMonitorCache_";
 });
+
+builder.Services.AddHealthChecks()
+    .AddSqlServer(
+        connectionString: builder.Configuration.GetConnectionString("DefaultConnection")!,
+        name: "SQL Server Database",
+        tags: new[] { "db", "sql" })
+    .AddRedis(
+        redisConnectionString: "localhost:6379",
+        name: "Redis Cache",
+        tags: new[] { "cache", "redis" });
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -76,6 +88,12 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.MapControllers();
+
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
 app.MapPrometheusScrapingEndpoint();
 app.Run();
 
