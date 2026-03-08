@@ -7,6 +7,7 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using SolarMonitor.Api.Filters;
 using SolarMonitor.Api.Middleware;
 using SolarMonitor.Api.Services;
 using SolarMonitor.Application.Behaviors;
@@ -22,20 +23,25 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
-    });
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ApiKeyAuthFilter>();
+})
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+});
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IPanelRepository, PanelRepository>();
+builder.Services.AddScoped<ApiKeyAuthFilter>();
 builder.Services.AddHostedService<InverterSimulatorService>();
 builder.Services.AddValidatorsFromAssembly(typeof(CreatePanelCommandValidator).Assembly);
-builder.Services.AddMediatR(cfg => 
-{ 
-    cfg.RegisterServicesFromAssembly(typeof(CreatePanelCommandHandler).Assembly); 
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(CreatePanelCommandHandler).Assembly);
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
 builder.Services.AddStackExchangeRedisCache(options =>

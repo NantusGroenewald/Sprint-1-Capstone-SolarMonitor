@@ -1,9 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SolarMonitor.Application.Queries;
+using SolarMonitor.Api.Filters;
 
 namespace SolarMonitor.Api.Controllers
 {
+    [ServiceFilter(typeof(ApiKeyAuthFilter))]
     [ApiController]
     [Route("api/[controller]")]
     public class DashboardController : ControllerBase
@@ -16,7 +18,9 @@ namespace SolarMonitor.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetSystemSummary(CancellationToken cancellationToken) 
+        public async Task<IActionResult> GetSystemSummary(
+            [FromHeader(Name = "X-API-KEY")] string apiKey,
+            CancellationToken cancellationToken) 
         {
             var query = new GetDashboardSummaryQuery();
             var summary = await _mediator.Send(query, cancellationToken);
