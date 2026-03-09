@@ -83,6 +83,18 @@ using var meterProvider = Sdk.CreateMeterProviderBuilder()
     })
     .Build();
 
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendPolicy", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()  
+              .AllowAnyMethod(); 
+    });
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -93,6 +105,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
+
+app.UseCors("FrontendPolicy");
+
 app.MapControllers();
 
 app.MapHealthChecks("/health", new HealthCheckOptions
