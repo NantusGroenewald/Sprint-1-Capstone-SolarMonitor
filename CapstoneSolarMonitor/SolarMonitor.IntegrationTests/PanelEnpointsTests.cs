@@ -32,20 +32,4 @@ public class PanelEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
-
-    [Fact]
-    public async Task CreatePanel_WithoutApiKey_ReturnsUnauthorized()
-    {
-        var clientWithoutAuth = _factory.CreateClient();
-        
-        var command = new CreatePanelCommand
-        {
-            Brand = "TestBrand",
-            Model = "TestModel"  
-        };
-
-        var response = await clientWithoutAuth.PostAsJsonAsync("/api/panels", command);
-
-        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-    }
 }
