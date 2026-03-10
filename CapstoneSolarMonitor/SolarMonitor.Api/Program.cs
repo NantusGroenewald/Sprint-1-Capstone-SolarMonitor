@@ -23,14 +23,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<ApiKeyAuthFilter>();
-})
+builder.Services.AddControllers()
 .AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
 });
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
@@ -116,6 +114,21 @@ app.MapHealthChecks("/health", new HealthCheckOptions
 });
 
 app.MapPrometheusScrapingEndpoint();
+
+using (var scope = app.Services.CreateScope())
+{
+    var service = scope.ServiceProvider;
+    try
+    {
+        var context = service.GetRequiredService<ApplicationDbContext>(); 
+        context.Database.Migrate();
+    }
+    catch (Exception)
+    {
+        var logger = service.GetRequiredService<ILogger<Program>>();
+        logger.LogError("An error occurred while migrating the database.");
+    }
+}
 app.Run();
 
 public partial class Program { }
