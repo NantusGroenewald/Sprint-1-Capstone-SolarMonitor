@@ -1,17 +1,38 @@
 version: '3.8'
 
 services:
-  # 1. Our SolarMonitor Web API
-  api:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+  # The Traffic Router
+  nginx:
+    image: nginx:latest
     ports:
-      - "5005:8080" # Map PC port 5005 to Container port 8080
+      - "5005:80" 
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api-blue
+      - api-green
+
+  # The Blue Environment (Currently Live)
+  api-blue:
+    build: .
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db;Database=SolarMonitorDb;User Id=sa;Password=SolarMonitor_StrongPass123!;TrustServerCertificate=True;
+      - ConnectionStrings__Redis=redis:6379,abortConnect=false,resolveDns=true
     depends_on:
-      - db # Tell Docker to start the database before starting the API
+      - db
+      - redis
+
+  # The Green Environment (Currently Idle/Staging)
+  api-green:
+    build: .
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db;Database=SolarMonitorDb;User Id=sa;Password=SolarMonitor_StrongPass123!;TrustServerCertificate=True;
+      - ConnectionStrings__Redis=redis:6379,abortConnect=false,resolveDns=true
+    depends_on:
+      - db
+      - redis
 
   # 2. The SQL Server Database
   db:
