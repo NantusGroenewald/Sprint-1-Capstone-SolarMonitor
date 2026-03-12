@@ -44,7 +44,7 @@ builder.Services.AddMediatR(cfg =>
 });
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = "localhost:6379";
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
     options.InstanceName = "SolarMonitorCache_";
 });
 
@@ -54,7 +54,7 @@ builder.Services.AddHealthChecks()
         name: "SQL Server Database",
         tags: new[] { "db", "sql" })
     .AddRedis(
-        redisConnectionString: "localhost:6379",
+        redisConnectionString: builder.Configuration.GetConnectionString("Redis")!,
         name: "Redis Cache",
         tags: new[] { "cache", "redis" });
 
