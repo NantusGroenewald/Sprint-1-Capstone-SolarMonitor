@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SolarMonitor.Domain.Entities;
+using SolarMonitor.Domain.Enums;
 
 namespace SolarMonitor.Infrastructure.Data;
 
@@ -29,6 +30,12 @@ public class ApplicationDbContext : DbContext
                   .WithOne()
                   .HasForeignKey(r => r.PanelId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasData(
+                new { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), Brand = "SunPower", Model = "Maxeon 3", Type = PanelType.Monocrystalline, InstallationDate = new DateTime(2025, 1, 15) },
+                new { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Brand = "LG", Model = "NeON 2", Type = PanelType.Monocrystalline, InstallationDate = new DateTime(2025, 2, 20) },
+                new { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Brand = "Canadian Solar", Model = "HiKu", Type = PanelType.Polycrystalline, InstallationDate = new DateTime(2025, 3, 10) }
+            );
         });
 
         modelBuilder.Entity<Reading>(entity =>
@@ -38,6 +45,12 @@ public class ApplicationDbContext : DbContext
             entity.Property(r => r.Watts).IsRequired();
             entity.Property(r => r.Voltage).IsRequired();
             entity.Property(r => r.Timestamp).IsRequired();
+
+            entity.HasData(
+                new { Id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), PanelId = Guid.Parse("11111111-1111-1111-1111-111111111111"), Watts = 350.5, Voltage = 48.2, Timestamp = new DateTime(2026, 3, 13, 9, 0, 0) },
+                new { Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), PanelId = Guid.Parse("11111111-1111-1111-1111-111111111111"), Watts = 375.0, Voltage = 48.5, Timestamp = new DateTime(2026, 3, 13, 10, 0, 0) },
+                new { Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"), PanelId = Guid.Parse("22222222-2222-2222-2222-222222222222"), Watts = 320.0, Voltage = 47.8, Timestamp = new DateTime(2026, 3, 13, 9, 0, 0) }
+            );
         });
     }
 }
