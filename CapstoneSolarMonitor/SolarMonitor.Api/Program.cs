@@ -8,6 +8,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using SolarMonitor.Api.Filters;
+using SolarMonitor.Api.Hubs;
 using SolarMonitor.Api.Middleware;
 using SolarMonitor.Api.Services;
 using SolarMonitor.Application.Behaviors;
@@ -42,6 +43,7 @@ builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(CreatePanelCommandHandler).Assembly);
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
+builder.Services.AddSignalR();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
@@ -89,7 +91,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()  
-              .AllowAnyMethod(); 
+              .AllowAnyMethod() 
+              .AllowCredentials();
     });
 });
 
@@ -129,6 +132,8 @@ using (var scope = app.Services.CreateScope())
         logger.LogError("An error occurred while migrating the database.");
     }
 }
+
+app.MapHub<SolarHub>("/hubs/solar");
 app.Run();
 
 public partial class Program { }
