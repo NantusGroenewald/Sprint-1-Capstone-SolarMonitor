@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Solar Monitor</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #1e1e1e;
+        color: #fff;
+        padding: 20px;
+      }
+      .panel {
+        background: #333;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        border-left: 5px solid #00ffcc;
+      }
+      .data {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #00ffcc;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>☀️ Deye Inverter Live Feed</h1>
+    <p>
+      Status:
+      <span id="connectionStatus" style="color: yellow">Connecting...</span>
+    </p>
+
+    <div id="dashboard"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+
+    <script>
+      // 2. Point it to your Nginx router Hub
+      const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/hubs/solar")
+        .withAutomaticReconnect()
+        .build();
+
+      // 3. Listen for the exact broadcast name we set in the C# service
+      connection.on("ReceiveLiveReading", (data) => {
+        const dashboard = document.getElementById("dashboard");
+
+        // Look for an existing HTML element for this panel
+        let panelDiv = document.getElementById(`panel-${data.panelId}`);
+
+        // If it doesn't exist yet, create it!
+        if (!panelDiv) {
+          panelDiv = document.createElement("div");
+          panelDiv.id = `panel-${data.panelId}`;
+          panelDiv.className = "panel";
+          dashboard.appendChild(panelDiv);
+        }
+
+        // Update the HTML with the fresh data
+        panelDiv.innerHTML = `
+                <div>Panel ID: ${data.panelId}</div>
+                <div>Power: <span class="data">${data.watts} W</span></div>
+                <div>Voltage: <span class="data">${data.voltage} V</span></div>
+                <div style="font-size: 0.8em; color: #aaa; margin-top: 5px;">Last Update: ${new Date(data.timestamp).toLocaleTimeString()}</div>
+            `;
+      });
+
+      // 4. Start the connection!
+      connection
+        .start()
+        .then(
+          () =>
+            (document.getElementById("connectionStatus").style.color =
+              "#00ffcc"),
+        )
+        .then(
+          () =>
+            (document.getElementById("connectionStatus").innerText =
+              "Connected"),
+        )
+        .catch((err) => {
+          document.getElementById("connectionStatus").style.color = "red";
+          document.getElementById("connectionStatus").innerText =
+            "Connection Failed";
+          console.error(err);
+        });
+    </script>
+  </body>
+</html>
